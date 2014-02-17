@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RSS Feed</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+</head>
+<body>
+    <h1>RSS Sonnylab</h1>
+    <ul data-bind="foreach: feeds">
+        <li><strong data-bind="text: $data.title"></strong> <span data-bind="html: $data.content"></span></li>
+    </ul>
+    <script>
+    function rssVM() {
+        var self = this;
+        self.feeds = ko.observableArray([]);
+        self.parseRSS = function(url, callback) {
+            $.ajax({
+                url: document.location.protocol + '//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&callback=?&q=' + encodeURIComponent(url),
+                dataType: 'json',
+                success: function(data) {
+                  callback(data.responseData.feed);
+                }
+            });
+        }
+        self.parseRSS('http://blog.sonnylab.com/feed', function(data) {
+            console.log(data.entries);
+            self.feeds(data.entries);
+        });    
+    }
+    ko.applyBindings(rssVM());
+    
+    </script>
+</body>
+</html>

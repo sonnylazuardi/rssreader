@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" ng-app="Blog">
+<head>
+    <meta charset="UTF-8">
+    <title>RSS with Angular</title>
+</head>
+<body>
+    <div ng-controller="BlogCtrl">
+        <label>URL:</label>
+          <input type="text" ng-model="url" placeholder="Enter url here">
+          <div>loading news from {{url}}...</div>
+          <button ng-click="loadFeed()">Load</button>
+          <button ng-click="test()">Testing</button>
+        <hr>
+        <h1>{{title}}</h1>
+        <ul ng-repeat="feed in feeds">
+            <li><strong>{{ feed.title }}</strong> <span ng-bind-html="feed.content"></span></li>
+        </ul>
+    </div>
+    <script src="jquery.min.js"></script>
+    <script src="angular.min.js"></script>
+    <script src="angular-sanitize.min.js"></script>
+    <script>
+        angular.module('Blog', ['ngSanitize'])
+        .controller('BlogCtrl', function($scope) {
+            $scope.url = 'http://blog.sonnylab.com/feed';
+            $scope.title = 'Sonny Blog';
+            $scope.feeds = [];
+            $scope.loadFeed = function() {
+                $.ajax({
+                    url: document.location.protocol + '//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&callback=?&q=' + encodeURIComponent($scope.url),
+                    dataType: 'json',
+                    success: function(response) {
+                        var data = response.responseData.feed;
+                        $scope.$apply(function(){
+                            $scope.title = data.title;
+                            $scope.feeds = data.entries;
+                        });
+                        console.log(data);
+                    }
+                });
+            }
+            $scope.test = function() {
+                $scope.title = "Testing";
+            }
+        });
+    </script>
+</body>
+</html>
